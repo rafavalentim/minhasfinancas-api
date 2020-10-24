@@ -35,7 +35,8 @@ public class LancamentoController {
 	private final UsuarioService usuarioService;
 	
 	@GetMapping
-	public ResponseEntity buscar(@RequestParam("descricao") String descricao,
+	public ResponseEntity buscar(
+			@RequestParam(value = "descricao", required = false) String descricao,
 			@RequestParam( value = "mes", required = false) Integer mes,
 			@RequestParam( value = "ano", required = false)Integer ano,
 			@RequestParam("usuario") Long idUsuario) {
@@ -170,7 +171,36 @@ public class LancamentoController {
 		}
 		return lancamento;
 	
-}
+	}
+	
+	@GetMapping("{id}")
+	public ResponseEntity obterLancamentoPorId(@PathVariable("id") Long id) {
+		
+		return service.obterPorId(id)
+				.map(lancamento -> new ResponseEntity(convertLancamentoToDTO(lancamento), HttpStatus.OK))
+				.orElseGet(() -> new ResponseEntity(HttpStatus.NOT_FOUND));
+		
+		
+	}
+	
+	private LancamentoDTO convertLancamentoToDTO(Lancamento lancamento) {
+		
+		return LancamentoDTO.builder()
+							.id(lancamento.getId())
+							.descricao(lancamento.getDescricao())
+							.mes(lancamento.getMes())
+							.ano(lancamento.getAno())
+							.valor(lancamento.getValor())
+							.tipo(lancamento.getTipo().name())
+							.status(lancamento.getStatus().name())
+							.idUsuario(lancamento.getUsuario().getId())
+							.build();
+							
+							
+		
+		
+		
+	}
 	
 	
 
